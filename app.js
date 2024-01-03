@@ -1,6 +1,6 @@
 const express = require("express");
 const multer = require("multer");
-const { s3Uploadv2 } = require("./s3Service");
+const { s3Uploadv2, s3Uploadv3 } = require("./s3Service");
 require("dotenv").config();
 const app = express();
 
@@ -52,12 +52,27 @@ app.use((error, req, res, next) => {
 // const upload = multer({ storage });
 const upload = multer({ storage, fileFilter, limits: { fileSize: 400000 } });
 
+// app.post("/upload", upload.array("file"), async (req, res) => {
+//   try {
+//     // const file = req.files[0];
+//     const results = await s3Uploadv2(req.files);
+//     console.log(results);
+//     return res.json({ status: "success!!!!", results });
+//   } catch (error) {
+//     console.log(error);
+//   }
+// });
+
+//upload with version 3
 app.post("/upload", upload.array("file"), async (req, res) => {
-  // const command =  new PutObjectCommand({})
-  const file = req.files[0];
-  const result = await s3Uploadv2(file);
-  console.log("custom filename upload: ", req.files);
-  res.json({ status: "success!!!!", result });
+  try {
+    // const file = req.files[0];
+    const results = await s3Uploadv3(req.files);
+    console.log(results);
+    return res.json({ status: "success!!!!", results });
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 app.get("/", (req, res) => {

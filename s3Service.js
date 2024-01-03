@@ -1,6 +1,7 @@
 // const { S3 } = require("aws-sdk/clients/s3");
 // const command = require("aws-sdk");
 const { S3 } = require("aws-sdk");
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 
 require("dotenv").config();
 const { randomUUID } = require("crypto");
@@ -14,12 +15,61 @@ exports.s3Uploadv2 = async (files) => {
     region: process.env.AWS_REGION,
   });
 
-  const params = {
-    Bucket: process.env.AWS_BUCKET_NAME,
-    Key: `test-demo-1/${randomUUID()}-${files.originalname}`,
-    Body: files.buffer,
-  };
+  //uploading single file
+  //   const params = {
+  //     Bucket: process.env.AWS_BUCKET_NAME,
+  //     Key: `test-demo-1/${randomUUID()}-${files.originalname}`,
+  //     Body: files.buffer,
+  //   };
 
-  const result = await s3.upload(params).promise();
-  return result;
+  //    const result = await s3.upload(params).promise();
+  //    return result;
+
+  // uploading multiple files at once
+
+  const params = files.map((file) => {
+    return {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: `test-demo-1/${randomUUID()}-${file.originalname}`,
+      Body: file.buffer,
+    };
+  });
+
+  const results = await Promise.all(
+    params.map((param) => s3.upload(param).promise())
+  );
+
+  return results;
+};
+
+exports.s3Uploadv3 = async (files) => {
+  const s3client = new S3Client({
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY_ID,
+    },
+    region: process.env.AWS_REGION,
+  });
+
+  //   const param = {
+  //     Bucket: process.env.AWS_BUCKET_NAME,
+  //     Key: `test-demo-1/${randomUUID()}-${file.originalname}`,
+  //     Body: file.buffer,
+  //   };
+
+  //   return s3client.send(new PutObjectCommand(param));
+
+  const params = files.map((file) => {
+    return {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: `test-demo-1/${randomUUID()}-${file.originalname}`,
+      Body: file.buffer,
+    };
+  });
+
+  const results = await Promise.all(
+    params.map((param) => s3client.send(new PutObjectCommand(param)))
+  );
+
+  return results;
 };
