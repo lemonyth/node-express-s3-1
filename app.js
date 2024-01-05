@@ -44,7 +44,8 @@ app.use(express.static("resources"));
 // });
 
 // MONGOOSE CONFIG
-const dbUrl = "mongodb://localhost/node-express-s3-demo-1";
+// const dbUrl = "mongodb://localhost/node-express-s3-demo-1";
+const dbUrl = process.env.MONGODB_URL;
 mongoose
   .connect(dbUrl, {
     // useNewUrlParser: true,
