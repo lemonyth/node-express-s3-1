@@ -18,8 +18,9 @@ body {
 .main-container .image-container {
   width: 500px;
   text-align: center;
-  border: black solid 1px;
-  border-radius: 20px;
+  border: 4px solid;
+  border-image: linear-gradient(to right, #f89a5b, #ee407a);
+  border-image-slice: 1;
   margin: 20px 0;
   padding: 10px 0;
 }
